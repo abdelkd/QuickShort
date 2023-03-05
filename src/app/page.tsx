@@ -1,91 +1,81 @@
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
-import styles from './page.module.css'
+'use client';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { useState } from 'react';
+import { ClipboardIcon } from '@heroicons/react/24/outline';
+import { useMutation } from 'react-query';
+import Link from 'next/link';
 
-const inter = Inter({ subsets: ['latin'] })
+const schema = z
+  .object({
+    url: z.string().url(),
+  })
+  .required();
 
 export default function Home() {
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    getValues,
+  } = useForm({
+    resolver: zodResolver(schema),
+  });
+
+  const { mutate, data, isError, isLoading } = useMutation(
+    ['pew'],
+    async () => {
+      return await fetch('/api/create', {
+        method: 'POST',
+        body: JSON.stringify({ url: getValues('url') }),
+      }).then(async (res) => await res.json());
+    }
+  );
+
+  const shortenUrl = async () => {
+    mutate();
+  };
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
+    <main className="flex h-full w-full items-center justify-center bg-gray-50">
+      <form onSubmit={handleSubmit(shortenUrl)}>
+        <div className="flex h-16 flex-col">
+          <div className="flex h-16 justify-center gap-3 sm:w-96">
+            <input
+              type="text"
+              className="h-9 rounded-md border border-gray-300 px-1 text-xl shadow-md shadow-gray-400/40 outline outline-1 outline-gray-300/60 sm:w-96"
+              {...register('url')}
             />
-          </a>
+            <input
+              type="submit"
+              value="Short"
+              className="h-9 w-20 cursor-pointer rounded-md bg-black px-3 py-1 text-gray-50 shadow-md shadow-gray-300 focus:bg-gray-900/70 disabled:cursor-not-allowed disabled:bg-gray-900/70"
+              disabled={isLoading}
+            />
+          </div>
+          {isLoading && <p className="">Generating Link</p>}
+          {errors.url && <p className="text-[red]">This is not a valid URL</p>}
+          {isError && (
+            <p className="text-[red]">Could not generat short link</p>
+          )}
+          {data && (
+            <div className="flex flex-col">
+              <p className="block text-green-600">Link has been created</p>
+              <div className="mt-4 flex gap-2">
+                <p className="cursor-pointer underline"><Link href={`/${data.key}`}>{data.url}</Link></p>
+                <ClipboardIcon
+                  className="h-6 w-6 cursor-pointer"
+                  onClick={async () => {
+                    await navigator.clipboard.writeText(data.url);
+                  }}
+                />
+              </div>
+            </div>
+          )}
         </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-        <div className={styles.thirteen}>
-          <Image src="/thirteen.svg" alt="13" width={40} height={31} priority />
-        </div>
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://beta.nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
+      </form>
     </main>
-  )
+  );
 }
