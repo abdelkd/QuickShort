@@ -58,7 +58,7 @@ export default function Home() {
           {isLoading && <p className="">Generating Link</p>}
           {errors.url && <p className="text-[red]">This is not a valid URL</p>}
           {isError && (
-            <p className="text-[red]">Could not generat short link</p>
+            <p className="text-[red]">Could not generate short link</p>
           )}
           {data && (
             <div className="flex flex-col">

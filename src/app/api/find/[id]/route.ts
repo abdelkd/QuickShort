@@ -1,4 +1,4 @@
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 import { getRequestMeta } from 'next/dist/server/request-meta';
 import { NextRequest, NextResponse } from 'next/server';
 
