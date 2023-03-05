@@ -9,7 +9,12 @@ export async function GET(req: Request, context: any, res: Response) {
     where: {
       short_id: id,
     },
+    select: {
+      original_url: true,
+    },
   });
+
+  console.log('link', link);
 
   if (link === null) {
     return NextResponse.json({
