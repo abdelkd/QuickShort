@@ -14,8 +14,6 @@ export async function GET(req: Request, context: any, res: Response) {
     },
   });
 
-  console.log('link', link);
-
   if (link === null) {
     return NextResponse.json({
       status: 404,
