@@ -15,11 +15,16 @@ export default function Slug() {
   const router = useRouter();
   const lid = usePathname().slice(1);
   const { data } = useQuery(['link'], async () => {
-    return fetchApi<TResponse>(`http://localhost:3000/api/find/${lid}`);
+    return fetchApi<TResponse>(`${process.env.BASE_URL}api/find/${lid}`);
   });
 
   if (data?.status === 200 && data?.url !== null) {
-    return router.replace(data.url);
+    router.replace(data.url);
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <h2 className='text-3xl'>Redirecting...</h2>
+      </div>
+    );
   }
 
   return (

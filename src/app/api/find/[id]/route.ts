@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function GET(req: Request, context: any, res: Response) {
   const { id } = context?.params;
 
-  const link = await prisma.links.findFirst({
+  const link = await prisma.links.findUnique({
     where: {
       short_id: id,
     },
